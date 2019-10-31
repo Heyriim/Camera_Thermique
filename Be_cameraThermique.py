@@ -105,6 +105,8 @@ if __name__ == "__main__" :
     plot.plot(xdata, planck(xdata, *R))
     print(R)
     
+    #5 : 
+    
     #exemple prof 
     image = planck(nuc_data, *R)
     image -= 273.15
@@ -115,6 +117,6 @@ if __name__ == "__main__" :
     image = planck(NUC, *R)
     image -= 273.15
     plot.figure(5)
-    plot.imshow(image, vmin=20, vmax=40.1)
+    plot.imshow(image, vmin=27, vmax=35)
     plot.colorbar()
     
