@@ -17,9 +17,11 @@ Created on Thu Oct 31 09:27:50 2019
 
 import numpy as np
 import matplotlib.pyplot as plot
+from scipy import optimize
 
-def planck(R,B,T) :
-    return
+def planck(DL, R, B, O):
+        return B / np.log(R / (DL - O) + 1)
+
 if __name__ == "__main__" :
     
     # 1 : affichage image
@@ -66,26 +68,53 @@ if __name__ == "__main__" :
     calib = np.where((alpha < 0.75) | (alpha > 1.25) | (beta < -5000) | (beta > 5000),0,1)  
     alpha[np.where((alpha < 0.75) | (alpha > 1.25) | (beta < -5000) | (beta > 5000))] = 1.
     beta[np.where((alpha < 0.75) | (alpha > 1.25) | (beta < -5000) | (beta > 5000))] = 0.
-    print("Pixels defectueux")
-    print(calib)
+    
+    #print("Pixels defectueux")
+    #print(calib)
     
     # 4 : Planck 
     
     DL = []
-    TBB = []
-    for temp in range (16, 42, 2):
+    for temp in range (16, 44, 2):
         file = 'temp_bb_{}C.dat'.format(temp)
-        data = np.loadtxt(file)
-        print(data)
-        print(alpha.min(), alpha.max(), beta.min(), beta.max())
-        nuc_data = alpha*data + beta
-        print(nuc_data)
+        data_all = np.loadtxt(file)
+        #print(data)
+        #print(alpha.min(), alpha.max(), beta.min(), beta.max())
+        nuc_data = alpha*data_all + beta
+        #(nuc_data)
         gamma = np.sum(nuc_data*calib)
         gamma /= np.sum(calib)
         
         DL.append(gamma)
     
-    print(DL)
-        
+    #print(DL)
     
+    ydata = np.arange(16,44,2)+ 273.15  
+    xdata = DL
+    
+    plot.figure(3)
+    
+    plot.plot(xdata,ydata,'-*')
+    plot.xlabel("DL")
+    plot.ylabel("T en °K")
+    
+    p0 = np.array([5e7, 1e3, 1e3])
+    bounds = (0, np.inf)
+    
+    R, B = optimize.curve_fit(planck, xdata, ydata, p0=p0, bounds=bounds)
+    plot.plot(xdata, planck(xdata, *R))
+    print(R)
+    
+    #exemple prof 
+    image = planck(nuc_data, *R)
+    image -= 273.15
+    plot.figure(4)
+    plot.imshow(image, vmin=39.9, vmax=40.1)
+    plot.colorbar()
+    
+    image = planck(NUC, *R)
+    image -= 273.15
+    plot.figure(5)
+    plot.imshow(image, vmin=20, vmax=40.1)
+    plot.colorbar()
     
